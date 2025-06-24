@@ -1,10 +1,10 @@
 # Technical Test
 
 Tutorial:
+1. install nginx-ingress controller from this link below and cert-manager first, then apply issuer file for ingress.  
+2. if already runs well with external IP as Load Balancer, apply config yaml file as configmap directly in cluster and per environment staging/production namespace with this command then Application is ready to deploy to Staging with a single push.
 
-- install nginx-ingress controller from this link below and cert-manager first, then apply issuer file for ingress.  
-- if already runs well with external IP as Load Balancer, apply config yaml file as configmap directly in cluster and per environment staging/production namespace with this command then Application is ready to deploy to Staging with a single push.
-    "kubectl create configmap configmap-heypico --from-file=config.yaml -n <environment>"
+### "kubectl create configmap configmap-heypico --from-file=config.yaml -n (environment)"
 
 
 
@@ -14,18 +14,20 @@ IAC provisioning script using Terraform in Terraform Folder with Re-usable Modul
 
 Monitoring tools using Prometheus & Grafana with a simple deployment from link below. And here is my approach for alerting and identifying security flaws within the system, for example there is 2 kind of Attacks;
 
-1. Brute Force Attack Detection, Attackers attempting to guess passwords through repeated login attempts.
+## 1. Brute Force Attack Detection, Attackers attempting to guess passwords through repeated login attempts.
 
 How to identify?
 - Graph showing failed login attempts over time & displaying source IPs with highest failure rates.
+
 How to Alert?
 - Notification Alert when threshold exceeded.
 
-2. Unusual Resource Consumption, Attackers overwhelming system resources to cause denial of service.
+## 2. Unusual Resource Consumption, Attackers overwhelming system resources to cause denial of service.
 
 How to identify?
 - Request rate monitoring with spike detection.
 - Network traffic analysis panels.
+
 How to Alert?
 - Notification Alert when have a High Request Rate in Business Hours (Time-based Thresholds).
 
