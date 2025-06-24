@@ -1,0 +1,6 @@
+env: "staging"
+data:
+  DB_HOST: amazon-whale.xxxxxxxxxx.ap-southeast-1.rds.amazonaws.com #RDS Endpoint
+  DB_USER: YWRtaW4=xxxxx
+  DB_PASS: Q2lsc3kyMDIzxxxxx
+  DB_NAME: mysqlwhales # name of Mysql Database
