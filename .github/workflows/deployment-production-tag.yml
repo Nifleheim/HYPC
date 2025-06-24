@@ -1,0 +1,62 @@
+name: Tag & Deploy to Production
+
+on:
+  release:
+    types:
+      - created
+
+env:
+  AWS_REGION: ap-southeast-1
+  EKS_CLUSTER: marina-bay-production-cluster
+  APP_NAME: heypico
+  ENVI: production
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Download PHP CodeSniffer
+      run: wget https://squizlabs.github.io/PHP CodeSniffer/phpcs.phar
+
+    - name: Check code style
+      run: php phpcs.phar --standard=PSR2 *.php
+
+    - name: Build, Tag and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build --build-arg environment=$ENVI -t $ECR_REGISTRY/$APP_NAME:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$APP_NAME:$IMAGE_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$APP_NAME:$IMAGE_TAG"
+
+    - name: Deploy to Amazon EKS using Helm
+      uses: Nifleheim/eks@v1.0.0
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+        cluster-name: ${{ env.EKS_CLUSTER }}
+        image-tag: ${{ github.sha }}
+        application-name: ${{ env.APP_NAME }}
+        namespace: ${{ env.ENVI }}
