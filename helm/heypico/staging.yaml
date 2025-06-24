@@ -1,0 +1,34 @@
+name: heypico # name of Deployment 
+
+replicaCount: 1 # number of pods 
+
+image:
+  repository: ikanpaus/heypico # my latest image of sosial media in DockerHub
+  tag: "v3" # image version 3
+  pullPolicy: IfNotPresent # Overrides the image tag whose default is the chart appVersion.
+
+service:
+  type: ClusterIP # use cluster IP as private connection in cluster
+  port: 80 # original port
+  protocol: TCP #protocol (TCP) 
+
+configmap:
+  enabled: true
+  name: configmap-heypico
+  volumeMounts:
+    mountPath: /app/config.yaml
+    fileName: config.yaml
+
+ingress: # use nginx-ingress controller to controll all ingress from internal deployment by 1 load balancer as external IP.
+  enabled: true
+  issuer: letsencrypt-staging
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/service-upstream: true
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+  path: /
+  tls:
+    enabled: true
+  hosts: 
+    - name: stg.pico.com
+      secretname: staging-heypico-certificate

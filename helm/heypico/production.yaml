@@ -1,0 +1,34 @@
+name: heypico # name of Deployment 
+
+replicaCount: 3 # number of pods 
+
+image:
+  repository: ikanpaus/heypico # my latest image of sosial media in DockerHub
+  tag: "v3" # image version 3
+  pullPolicy: IfNotPresent # Overrides the image tag whose default is the chart appVersion.
+
+service:
+  port: 80 #original port
+  protocol: TCP #protocol (TCP) 
+  type: LoadBalancer #show elb link access to website
+
+configmap:
+  enabled: true
+  name: configmap-heypico
+  volumeMounts:
+    mountPath: /app/config.yaml
+    fileName: config.yaml
+
+ingress:
+  enabled: true
+  issuer: letsencrypt-production
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/service-upstream: true
+    nginx.ingress.kubernetes.io/proxy-body-size: 5m
+  path: /
+  tls:
+    enabled: true
+  hosts: 
+    - name: production.pico.com
+      secretname: production-heypico-certificate

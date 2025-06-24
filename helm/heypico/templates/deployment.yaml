@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: {{ template "chart.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}  
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: {{ .Values.appName }}
+        volumeMounts:
+        - mountPath: {{ .Values.configmap.volumeMounts.mountPath }}
+          name: {{ template "chart.fullname" . }}-volume
+          subPath: {{ .Values.configmap.volumeMounts.fileName }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.port }}    
+      {{- if .Values.configmap.enabled }}
+      volumes:
+      - name: {{ template "chart.fullname" . }}-volume
+        configMap:
+          name: {{ .Values.configmap.name }}
+      {{- end }}  
+        resources: {}
+status: {}
